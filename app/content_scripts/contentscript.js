@@ -29,29 +29,33 @@
 	}
 
 	function getToken() {
-		executeInDocument(function() {
-			$('body').append(
-				$('<input/>', {
-					id: 'csrf_token',
-					type: 'hidden'
-				}).val(P.csrf.getCSRFToken()) //jshint ignore:line
-			);
-		});
+		try {
+			executeInDocument(function() {
+				$('body').append(
+					$('<input/>', {
+						id: 'csrf_token',
+						type: 'hidden'
+					}).val(P.csrf.getCSRFToken()) //jshint ignore:line
+				);
+			});
 
-		var $inputToken = $('body > #csrf_token');
-		var token = $inputToken.val();
-		$inputToken.remove();
-		return token;
+			var $inputToken = $('body > #csrf_token');
+			var token = $inputToken.val();
+			$inputToken.remove();
+			return token;
+		} catch (e) {
+			return null;
+		}
 	}
 
 	var IS_LOGGED = isLogged(),
 		TOKEN = IS_LOGGED ? getToken() : null;
 
-	function sendError(errorCode, errorMsg, sender) {
+	function sendError(errorName, errorMsg, sender) {
 		//TODO: better error managment
 		sender({
 			error: {
-				code: errorCode,
+				name: errorName,
 				msg: errorMsg
 			}
 		});
@@ -70,6 +74,11 @@
 			throw new Error('Messages only allowed from background page');
 		}
 
+		if (!TOKEN){
+			sendError('INVALID_TOKEN', null, sendResponse);
+		}
+
+
 		switch (request.action) {
 			case 'publish-pin':
 				publishPin(request.data, request.SESSION_SECRET, sendResponse);
@@ -86,7 +95,17 @@
 		return true;
 	}
 
-	function publishPin(pin, SESSION_SECRET,  sendResponse) {
+	function publishPin(pin, SESSION_SECRET, sendResponse) {
+		if (pin instanceof Object === false){
+			sendError('INVALID_PIN', pin, sendResponse);
+			return;
+		}
+
+		if (typeof pin.board !== 'string' ||  typeof pin.description !== 'string' || typeof pin.mediaPage !== 'string' || typeof pin.mediaUrl !== 'string'){
+			sendError('INVALID_PIN', pin, sendResponse);
+			return;
+		}
+
 		var formData = {
 			'source_url': '/pin/create/bookmarklet/',
 			'data': {
@@ -117,7 +136,10 @@
 				'data': JSON.stringify(formData.data)
 			},
 			success: function(data) {
-				sendSuccess({html: data}, sendResponse);
+				//TODO: better success handling
+				sendSuccess({
+					html: data
+				}, sendResponse);
 			},
 			error: function(err) {
 				sendError('AJAX_ERROR', err, sendResponse);
@@ -125,12 +147,12 @@
 		});
 	}
 
-	function getBoards(sendResponse) {
+	function getBoards(TOKEN, sendResponse) {
 		if (isLogged === false) {
 			sendError('NOT_LOGGED', null, sendResponse);
 		}
 
-		sendSuccess([1,2,3], sendResponse);
+		sendSuccess([{id: 'bueno'}, {id: 'bonito'}, {id:'barato'}], sendResponse);
 
 		var boards = [];
 
@@ -143,7 +165,9 @@
 		});
 	}
 
-
+	/**
+	 * Public interface
+	 */
 	chrome.runtime.onMessage.addListener(processRequest);
 
 })(window.chrome, window.$);

@@ -20,14 +20,13 @@
 				throw new Error('Pin already published');
 			}
 
-			PinterestAPI.publishPin(this.toJSON(), function(err, res) {
+			PinterestAPI.publishPin(this.toJSON(), function(err) {
 				if (err) {
 					throw new Error(err);
 				}
 
-				//console.info('pin response', res);
-
 				this.set({
+					published : true,
 					date: new Date()
 				});
 

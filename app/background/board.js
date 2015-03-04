@@ -22,8 +22,13 @@
 			return this.models.slice(0, 5);
 		},
 		fetch : function(){
-			PinterestAPI.get('boards', null, function(err, res){
-				this.set(res);
+			PinterestAPI.getBoards(null, function(err, res){
+				if (err){
+					console.error(err);
+				} else {
+					this.set(res);
+				}
+				this.trigger('fetched', err, res);					
 			}.bind(this));
 		}
 	});

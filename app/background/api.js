@@ -1,12 +1,27 @@
 'use strict';
 
-(function(chrome, $) {
+(function(chrome, $, _) {
 
 	/**
 	 * Constants
 	 */
 	var PINTEREST_URL = 'http://www.pinterest.com/pin/create/bookmarklet/?extension=true',
-		SESSION_SECRET;
+		SESSION_SECRET = _.random(0, 2e9);
+
+	window.chrome.webRequest.onHeadersReceived.addListener(
+		function(info) {	
+			_.remove(info.responseHeaders, function(header) {
+				return header.name.toLowerCase() === 'x-frame-options' || header.name.toLowerCase() === 'frame-options';
+			});
+
+			return {
+				responseHeaders: info.responseHeaders
+			};
+		}, {
+			urls: ['*://*.pinterest.com/*'], // Pattern to match pinterest pages
+			types: ['sub_frame']
+		}, ['blocking', 'responseHeaders']
+	);
 
 
 	/**
@@ -19,7 +34,7 @@
 		}
 
 		var $iframe = $('<iframe>', {
-			src: url,
+			src: url
 		});
 
 		if (typeof callback === 'function') {
@@ -37,16 +52,14 @@
 	var $iframe;
 
 	function sendAction(action, input, callback) {
-		if (!SESSION_SECRET) {
-			throw new Error('SESSION_SECRET has not been initializated yet');
-		}
+		var sendArguments = arguments;
 
 		//TODO: Two sync requests
 
 		if (!$iframe) {
 			loadInIframe(PINTEREST_URL, function($ifr) {
 				$iframe = $ifr;
-				sendAction.apply(this, arguments);
+				sendAction.apply(this, sendArguments);
 			});
 		} else {
 			var request = {
@@ -55,13 +68,10 @@
 				SESSION_SECRET: SESSION_SECRET
 			};
 
-			/*chrome.runtime.sendMessage(request, function(res) {
+			chrome.runtime.sendMessage(request, function(res) {
 				res = res instanceof Object ? res : {};
 				callback(res.error, res.data);
-			});*/
-
-
-
+			});
 		}
 	}
 
@@ -110,14 +120,12 @@
 		sendAction('publish-pin', pin, callback);
 	}
 
-	function init(sessionSecret) {
-		SESSION_SECRET = sessionSecret;
-	}
-
+	/**
+	 * Public interface
+	 */
 	window.PinterestAPI = {
 		publishPin: publishPin,
 		getBoards: getBoards,
-		init: init
 	};
 
-})(window.chrome, window.$);
+})(window.chrome, window.$, window._);
