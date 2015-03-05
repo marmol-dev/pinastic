@@ -2,6 +2,18 @@
 
 (function(BackboneLocalStorage, PinterestAPI) {
 
+	/**
+	 * Interfaces validation
+	 */
+
+	if (PinterestAPI instanceof Object === false){
+	 	throw new Error('Invalid PinterestAPI');
+	}
+
+	if (typeof PinterestAPI.getUsername !== 'function'){
+		throw new Error('Invalid PinterestAPI getUsername public interface');
+	}
+
 	var settingsDefaults = {
 		'language': 'en',
 		'context-menu': {

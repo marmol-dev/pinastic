@@ -1,6 +1,20 @@
 'use strict';
 
 (function(Backbone, BackboneLocalStorage, PinterestAPI, Settings) {
+
+	/**
+	 * Interfaces validation
+	 */
+
+	if (PinterestAPI instanceof Object === false){
+	 	throw new Error('Invalid PinterestAPI');
+	}
+
+	if (typeof PinterestAPI.getBoards !== 'function'){
+		throw new Error('Invalid PinterestAPI getBoards public interface');
+	}
+
+
 	var Board = Backbone.Model.extend({
 		defaults : {
 			'id': null,

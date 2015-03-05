@@ -9,15 +9,12 @@
 			}),
 			boards = new Boards([], {
 				localStorageKey: 'boards',
-				settings : settings,
+				settings : settings
+
 			}),
 			pins = new Pins([], {
 				localStorageKey: 'pins'
 			});
-
-		if (!settings.get('username')){
-
-		}
 
 		contextualMenu.init({
 			settings: settings,
@@ -33,4 +30,4 @@
 		window.boards = boards;
 	})();
 
-})(window.Settings, window.Boards, window.Pins, window.contextualMenu, window.PinterestAPI, window._);
+})(window.Settings, window.Boards, window.Pins, window.contextualMenu);

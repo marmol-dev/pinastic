@@ -1,6 +1,14 @@
 'use strict';
 
-(function(Backbone, BackboneLocalStorage, boards, PinterestAPI) {
+(function(Backbone, BackboneLocalStorage,  PinterestAPI) {
+
+	if (PinterestAPI instanceof Object === false) {
+		throw new Error('Invalid PinterestAPI');
+	}
+
+	if (typeof PinterestAPI.publishPin !== 'function') {
+		throw new Error('Invalid PinterestAPI publishPin public interface');
+	}
 
 	var Pin = Backbone.Model.extend({
 		defaults: {
@@ -27,7 +35,7 @@
 				}
 
 				this.set({
-					published : true,
+					published: true,
 					date: new Date()
 				});
 
@@ -43,4 +51,4 @@
 
 	window.Pins = Pins;
 
-})(window.Backbone, window.BackboneLocalStorage, window.boards, window.PinterestAPI);
+})(window.Backbone, window.BackboneLocalStorage,  window.PinterestAPI);

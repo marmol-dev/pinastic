@@ -111,10 +111,9 @@
 		boards = data.boards;
 		pins = data.pins;
 		settings = data.settings;
+		chrome.contextMenus.onClicked.addListener(onContextClicked);
 		updateMenus();
 	}
-
-	chrome.contextMenus.onClicked.addListener(onContextClicked);
 
 	window.contextualMenu = {
 		init: init,
