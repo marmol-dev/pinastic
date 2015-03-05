@@ -8,6 +8,7 @@
 				localStorageKey: 'settings'
 			}),
 			boards = new Boards([], {
+				updateOnlyOnReset: true,
 				localStorageKey: 'boards',
 				settings : settings
 
