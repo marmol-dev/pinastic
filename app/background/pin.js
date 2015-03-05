@@ -20,9 +20,10 @@
 				throw new Error('Pin already published');
 			}
 
+			console.info('Publishing pin', this);
 			PinterestAPI.publishPin(this.toJSON(), function(err) {
 				if (err) {
-					throw new Error(err);
+					throw new Error(err.name);
 				}
 
 				this.set({

@@ -8,7 +8,7 @@
 	var PINTEREST_URL = 'http://www.pinterest.com/pin/create/bookmarklet/?extension=true',
 		SESSION_SECRET = _.random(0, 2e9);
 
-	window.chrome.webRequest.onHeadersReceived.addListener(
+	chrome.webRequest.onHeadersReceived.addListener(
 		function(info) {	
 			_.remove(info.responseHeaders, function(header) {
 				return header.name.toLowerCase() === 'x-frame-options' || header.name.toLowerCase() === 'frame-options';
@@ -52,6 +52,10 @@
 	var $iframe;
 
 	function sendAction(action, input, callback) {
+		if (typeof action !== 'string' || (input !== null && input instanceof Object === false) || typeof callback !== 'function' ){
+			throw new Error('Invalid sendAction invocation');
+		}
+
 		var sendArguments = arguments;
 
 		//TODO: Two sync requests
@@ -80,11 +84,19 @@
 	 */
 
 
+	 /**
+	  * Get the boards of a username
+	  * @param <Object {'username' <String>}> options object
+	  * @param <Function> a function executed after boards returned
+	  */
 	function getBoards(options, callback) {
 
-		if (typeof options === 'function') {
-			callback = options;
-			options = null;
+		if (options instanceof Object === false){
+			throw new Error('Invalid getBoard options');
+		}
+
+		if (typeof options.username !== 'string'){
+			throw new Error('Invalid getBoard username');
 		}
 
 		if (typeof callback !== 'function') {
@@ -95,10 +107,13 @@
 			if ($iframe) $iframe.remove();
 		}
 
-		sendAction('get-boards', null, callback);
+		sendAction('get-boards', options, callback);
 
 	}
 
+	/**
+	 * 
+	 */
 	function publishPin(pin, callback) {
 
 		if (pin instanceof Object === false || typeof callback !== 'function') {
@@ -121,11 +136,19 @@
 	}
 
 	/**
+	 * 
+	 */
+	function getUsername(callback){
+		sendAction('get-username', {}, callback);
+	}
+
+	/**
 	 * Public interface
 	 */
 	window.PinterestAPI = {
 		publishPin: publishPin,
 		getBoards: getBoards,
+		getUsername : getUsername
 	};
 
 })(window.chrome, window.$, window._);

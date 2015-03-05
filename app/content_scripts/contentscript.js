@@ -16,6 +16,10 @@
 		return false;
 	}
 
+	function randomNumber(first, last){
+		return Math.floor((Math.random() * last) + first);
+	}
+
 	function executeInDocument(fn) {
 		var actualCode = '(' + fn + ')();';
 		var script = document.createElement('script');
@@ -49,6 +53,7 @@
 	}
 
 	var IS_LOGGED = isLogged(),
+		USERNAME = 'tomymolina',
 		TOKEN = IS_LOGGED ? getToken() : null;
 
 	function sendError(errorName, errorMsg, sender) {
@@ -74,9 +79,11 @@
 			throw new Error('Messages only allowed from background page');
 		}
 
-		if (!TOKEN){
-			sendError('INVALID_TOKEN', null, sendResponse);
+		if (!TOKEN && IS_LOGGED) {
+			sendError('INVALID_TOKEN', null, sendResponse);	
 		}
+
+		console.info('CONTENTSCRIPT ACTION: ' + request.action, request.data);
 
 
 		switch (request.action) {
@@ -84,7 +91,10 @@
 				publishPin(request.data, request.SESSION_SECRET, sendResponse);
 				break;
 			case 'get-boards':
-				getBoards(request.SESSION_SECRET, sendResponse);
+				getBoards(request.data, request.SESSION_SECRET, sendResponse);
+				break;
+			case 'get-username':
+				getUsername(request.SESSION_SECRET, sendResponse);
 				break;
 			default:
 				sendError('INVALID_ACTION', request.action, sendResponse);
@@ -96,12 +106,17 @@
 	}
 
 	function publishPin(pin, SESSION_SECRET, sendResponse) {
-		if (pin instanceof Object === false){
+		if (isLogged === false) {
+			sendError('NOT_LOGGED', null, sendResponse);
+			return;
+		}
+
+		if (pin instanceof Object === false) {
 			sendError('INVALID_PIN', pin, sendResponse);
 			return;
 		}
 
-		if (typeof pin.board !== 'string' ||  typeof pin.description !== 'string' || typeof pin.mediaPage !== 'string' || typeof pin.mediaUrl !== 'string'){
+		if (typeof pin.board !== 'string' || typeof pin.description !== 'string' || typeof pin.mediaPage !== 'string' || typeof pin.mediaUrl !== 'string') {
 			sendError('INVALID_PIN', pin, sendResponse);
 			return;
 		}
@@ -142,26 +157,103 @@
 				}, sendResponse);
 			},
 			error: function(err) {
-				sendError('AJAX_ERROR', err, sendResponse);
+				sendError('PIN_AJAX_ERROR', err, sendResponse);
 			}
 		});
 	}
 
-	function getBoards(TOKEN, sendResponse) {
-		if (isLogged === false) {
+	function getBoards(options, SESSION_SECRET, sendResponse) {
+		if (IS_LOGGED === false) {
 			sendError('NOT_LOGGED', null, sendResponse);
+			return;
 		}
 
-		sendSuccess([{id: 'bueno'}, {id: 'bonito'}, {id:'barato'}], sendResponse);
+		if (options instanceof Object === false){
+			sendError('INVALID_BOARD_OPTIONS', options, sendResponse);
+			return;
+		}
 
-		var boards = [];
+		if(typeof options.username !== 'string'){
+			sendError('INVALID_BOARD_USERNAME', options.username, sendResponse);
+			return;
+		}
 
-		$('ul.section > ul.sectionItems > li.item').each(function(item, index) {
-			/*boards.push({
-				name: $.trim($(item).find('.nameAndIcons').text()),
-				collab: $(item).find('.BoardIcons > .collaborativeIcon').length,
-				id: 
-			});*/
+		var formData = {
+			'source_url': '/' + options.username + '/',
+			'data': {
+				'options': {
+					'field_set_key': 'grid_item',
+					'username': options.username,
+				},
+				'context': {}
+			},
+			'_' : randomNumber(0, 2e9)
+		};
+
+		$.ajax({
+			url: 'https://www.pinterest.com/resource/ProfileBoardsResource/get/',
+			type: 'GET',
+			headers: {
+				'X-CSRFToken': TOKEN,
+				'X-session-secret': SESSION_SECRET
+			},
+			data: {
+				'source_url': formData['source_url'], //jshint ignore:line
+				'data': JSON.stringify(formData.data)
+			},
+			success: function(data) {
+				//TODO: better success handling
+				if (data.resource_response && data.resource_response.data){ //jshint ignore:line
+					sendSuccess(data.resource_response.data.slice(1), sendResponse); //jshint ignore:line
+				} else {
+					sendError('INVALID_BOARDS_RESPONSE', data, sendResponse);
+				}
+
+				
+			},
+			error: function(err) {
+				sendError('BOARDS_AJAX_ERROR', err, sendResponse);
+			}
+		});
+	}
+
+	function getUsername(SESSION_SECRET, sendResponse){
+		if (IS_LOGGED === false){
+			sendError('NOT_LOGGED', null, sendResponse);
+			return;
+		}
+
+		var formData = {
+			'source_url': '/',
+			'data': {
+				'options': {},
+				'context': {}
+			},
+			'_' : randomNumber(0, 2e9)
+		};
+
+		$.ajax({
+			url: 'https://www.pinterest.com/resource/UserSettingsResource/get/',
+			type: 'GET',
+			headers: {
+				'X-CSRFToken': TOKEN,
+				'X-session-secret': SESSION_SECRET
+			},
+			data: {
+				'source_url': formData['source_url'], //jshint ignore:line
+				'data': JSON.stringify(formData.data)
+			},
+			success: function(data) {
+				//TODO: better success handling
+				if (data.resource_response && data.resource_response.data){ //jshint ignore:line
+					sendSuccess(data.resource_response.data.username, sendResponse); //jshint ignore:line
+				} else {
+					sendError('INVALID_USERNAME_RESPONSE', data, sendResponse);
+				}	
+			},
+			error: function(err) {
+				sendError('USERNAME_AJAX_ERROR', err, sendResponse);
+			}
 		});
 	}
 

@@ -1,15 +1,15 @@
 'use strict';
 
 (function(chrome, async, _) {
-	var _boards,
-		_settings,
-		_pins;
+	var boards,
+		settings,
+		pins;
 
 
 	var parentMenu;
 
 	function wrapRecentBoards(finish) {
-		var recent = _.map(_boards.recent(), function(board) {
+		var recent = _.map(boards.recent(), function(board) {
 			return board.toJSON();
 		});
 		async.each(recent, function(board, callback) {
@@ -33,7 +33,7 @@
 	}
 
 	function wrapAllBoards(finish) {
-		var all = _boards.toJSON();
+		var all = boards.toJSON();
 		async.each(all, function(board, callback) {
 			//TODO: collaborative mark
 			var boardMenuProperties = {
@@ -93,7 +93,7 @@
 		//check if it wasn't the parent menu
 		if (menuInfo.menuItemId !== parentMenu) {
 
-			var pin = _pins.add({
+			var pin = pins.add({
 				board: menuInfo.menuItemId.match(/([\w]{1,})\/(recent|all)/)[1],
 				mediaPage: menuInfo.srcUrl,
 				mediaUrl: tab.url,
@@ -108,9 +108,9 @@
 	}
 
 	function init(data) {
-		_boards = data.boards;
-		_pins = data.pins;
-		_settings = data.settings;
+		boards = data.boards;
+		pins = data.pins;
+		settings = data.settings;
 		updateMenus();
 	}
 

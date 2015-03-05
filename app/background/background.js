@@ -8,11 +8,16 @@
 				localStorageKey: 'settings'
 			}),
 			boards = new Boards([], {
-				localStorageKey: 'boards'
+				localStorageKey: 'boards',
+				settings : settings,
 			}),
 			pins = new Pins([], {
 				localStorageKey: 'pins'
 			});
+
+		if (!settings.get('username')){
+
+		}
 
 		contextualMenu.init({
 			settings: settings,
@@ -22,7 +27,7 @@
 
 		settings.on('change', contextualMenu.update);
 		boards.on('reset', contextualMenu.update);
-		pins.on('published', contextualMenu.update);
+		pins.on('published', boards.fetch.bind(boards));
 		//pins.on('published', notification.successPin);
 
 		window.boards = boards;

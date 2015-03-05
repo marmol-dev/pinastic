@@ -17,9 +17,9 @@
       "lib/backbone/backbone.js",
       "background/backbone-localstorage.js",
       "background/api.js",
+      "background/settings.js",
       "background/pin.js",
       "background/board.js",
-      "background/settings.js",
       "background/contextual-menu.js",
       "background/background.js"
     ]

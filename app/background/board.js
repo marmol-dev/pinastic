@@ -1,6 +1,6 @@
 'use strict';
 
-(function(Backbone, BackboneLocalStorage, PinterestAPI) {
+(function(Backbone, BackboneLocalStorage, PinterestAPI, Settings) {
 	var Board = Backbone.Model.extend({
 		defaults : {
 			'id': null,
@@ -14,15 +14,34 @@
 
 	var Boards = BackboneLocalStorage.Collection.extend({
 		model: Board,
-		initialize : function() {
-			
+		initialize : function(boards, options) {
+			if (options.settings instanceof Settings === false){
+				throw new Error('Invalid boards option\'s settings');
+			}
+
+			this.settings = options.settings;
 		}, 
 		recent : function(){
 			//TODO: create
 			return this.models.slice(0, 5);
 		},
 		fetch : function(){
-			PinterestAPI.getBoards(null, function(err, res){
+			var settings = this.settings,
+				boards = this,
+				fetchArguments = arguments;
+
+			if (!settings.get('username')){
+				settings.on('fetchedUsername', function(err){
+					if (!err){
+						boards.fetch.apply(boards, fetchArguments);
+					}
+				});
+				settings.fetchUsername();
+				return;
+			}
+
+			console.info('Fetching boards', this);
+			PinterestAPI.getBoards({username: settings.get('username')}, function(err, res){
 				if (err){
 					console.error(err);
 				} else {
@@ -35,4 +54,4 @@
 
 	window.Boards = Boards;
 
-})(window.Backbone, window.BackboneLocalStorage, window.PinterestAPI);
+})(window.Backbone, window.BackboneLocalStorage, window.PinterestAPI, window.Settings);
