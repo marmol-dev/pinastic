@@ -1,6 +1,6 @@
 'use strict';
 
-(function(BackboneLocalStorage, PinterestAPI) {
+(function(BackboneLocalStorage, Backbone, _, PinterestAPI) {
 
 	/**
 	 * Interfaces validation
@@ -24,24 +24,28 @@
 		},
 		'general-pinning': {
 			'success-message': true,
+			'success-message-time': 3000,
 			'simultaneous-pins': 3
 		},
 		'username': null,
 	};
 
-	var Settings = BackboneLocalStorage.Model.extend({
+	var Settings = Backbone.DeepModel.extend({
 		defaults : settingsDefaults,
-		initialize : function(){
+		constructor : function(){
+			Backbone.DeepModel.apply(this, arguments);
+			_.extend(this, BackboneLocalStorage.Model.prototype);
+			BackboneLocalStorage.Model.apply(this, arguments);
 		},
 		fetchingUsername : false,
 		fetchUsername : function(){
 			if (this.fetchingUsername === false){
-				console.info('Fetching username');
 				this.fetchingUsername = true;
 				PinterestAPI.getUsername(function(err, username){
 					this.fetchingUsername = false;
 					if (!err){
 						this.set('username', username);
+						console.info('Fetched username');
 					}
 					this.trigger('fetchedUsername', err, username);
 				}.bind(this));
@@ -51,4 +55,4 @@
 
 	window.Settings = Settings;
 
-})(window.BackboneLocalStorage, window.PinterestAPI);
+})(window.BackboneLocalStorage, window.Backbone, window._, window.PinterestAPI);

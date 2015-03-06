@@ -83,8 +83,7 @@
 			sendError('INVALID_TOKEN', null, sendResponse);	
 		}
 
-		console.info('CONTENTSCRIPT ACTION: ' + request.action, request.data);
-
+		//console.info('CONTENTSCRIPT ACTION: ' + request.action, request.data);
 
 		switch (request.action) {
 			case 'publish-pin':

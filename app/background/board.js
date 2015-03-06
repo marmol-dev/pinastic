@@ -35,9 +35,9 @@
 
 			this.settings = options.settings;
 		}, 
-		recent : function(){
+		recent : function(n){
 			//TODO: create
-			return this.models.slice(0, 5);
+			return this.models.slice(0, n);
 		},
 		fetch : function(){
 			var settings = this.settings,
@@ -54,12 +54,12 @@
 				return;
 			}
 
-			console.info('Fetching boards', this);
 			PinterestAPI.getBoards({username: settings.get('username')}, function(err, res){
 				if (err){
 					console.error(err);
 				} else {
-					this.set(res);
+					console.info('Fetched boards');
+					this.reset(res, {reset:true});
 				}
 				this.trigger('fetched', err, res);					
 			}.bind(this));

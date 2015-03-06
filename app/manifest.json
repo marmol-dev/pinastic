@@ -15,12 +15,14 @@
       "lib/lodash/lodash.min.js",
       "lib/jquery/dist/jquery.min.js",
       "lib/backbone/backbone.js",
+      "lib/backbone-deep-model/dist/backbone-deep-model.min.js",
       "background/backbone-localstorage.js",
       "background/api.js",
       "background/settings.js",
       "background/pin.js",
       "background/board.js",
       "background/contextual-menu.js",
+      "background/notifications.js",
       "background/background.js"
     ]
   },

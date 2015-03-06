@@ -9,7 +9,8 @@
 	var parentMenu;
 
 	function wrapRecentBoards(finish) {
-		var recent = _.map(boards.recent(), function(board) {
+		var recentBoards = settings.get('context-menu.recent-boards');
+		var recent = _.map(boards.recent(recentBoards), function(board) {
 			return board.toJSON();
 		});
 		async.each(recent, function(board, callback) {
@@ -67,19 +68,23 @@
 
 	function removeParentMenu(callback) {
 		if (parentMenu) {
-			chrome.contextMenus.remove(parentMenu, callback);
-			parentMenu = null;
-		} else throw 'INVALID_PARENT_MENU';
+			chrome.contextMenus.remove(parentMenu, function(){
+				parentMenu = null;
+				callback.apply(this, arguments);
+			});
+		} else throw new Error('INVALID_PARENT_MENU');
 	}
 
 	function updateMenus(callback) {
 
+		console.info('Update context menu');
 
-		callback = function() {
-			console.info('finished update contextual menu');
-		};
+		if (typeof callback !== 'function'){
+			callback = function(){
+				//console.info('contextualMenu updated', boards.toJSON());
+			};
+		}
 
-		//TODO: create menu
 		if (parentMenu) {
 			removeParentMenu(function() {
 				createParentMenu(callback);

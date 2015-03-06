@@ -34,12 +34,14 @@
 					throw new Error(err.name);
 				}
 
+				console.log('Published pin');
+
 				this.set({
 					published: true,
 					date: new Date()
 				});
 
-				this.trigger('published');
+				this.trigger('published', this);
 			}.bind(this));
 		},
 	});
