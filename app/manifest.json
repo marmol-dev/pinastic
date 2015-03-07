@@ -43,7 +43,9 @@
       ],
       "js": [
         "lib/jquery/dist/jquery.min.js",
-        "content_scripts/contentscript.js"
+        "content_scripts/base.js",
+        "content_scripts/actionspage.js",
+        "content_scripts/tokenpage.js"
       ],
       "run_at": "document_end",
       "all_frames": true
