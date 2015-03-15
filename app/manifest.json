@@ -16,7 +16,7 @@
       "lib/jquery/dist/jquery.min.js",
       "lib/backbone/backbone.js",
       "lib/backbone-deep-model/dist/backbone-deep-model.min.js",
-      "background/backbone-localstorage.js",
+      "lib/backbone-browserstorage/backbone-browserstorage.js",
       "background/api.js",
       "background/settings.js",
       "background/pin.js",

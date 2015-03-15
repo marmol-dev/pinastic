@@ -12,7 +12,8 @@
     "lodash": "~3.3.1",
     "backbone": "~1.1.2",
     "async": "~0.9.2",
-    "backbone-deep-model": "https://github.com/kahwee/backbone-deep-model.git"
+    "backbone-deep-model": "https://github.com/kahwee/backbone-deep-model.git",
+    "backbone-browserstorage": "~0.0.2"
   },
   "devDependencies": {}
 }

@@ -1,6 +1,6 @@
 'use strict';
 
-(function(Backbone, BackboneLocalStorage,  PinterestAPI) {
+(function(Backbone,  PinterestAPI) {
 
 	if (PinterestAPI instanceof Object === false) {
 		throw new Error('Invalid PinterestAPI');
@@ -46,11 +46,11 @@
 		},
 	});
 
-	var Pins = BackboneLocalStorage.Collection.extend({
+	var Pins = Backbone.LocalStorageCollection.extend({
 		model: Pin,
 		initialize: function() {}
 	});
 
 	window.Pins = Pins;
 
-})(window.Backbone, window.BackboneLocalStorage,  window.PinterestAPI);
+})(window.Backbone, window.PinterestAPI);

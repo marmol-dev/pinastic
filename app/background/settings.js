@@ -1,6 +1,6 @@
 'use strict';
 
-(function(BackboneLocalStorage, Backbone, _, PinterestAPI) {
+(function(Backbone, _, PinterestAPI) {
 
 	/**
 	 * Interfaces validation
@@ -34,8 +34,8 @@
 		defaults : settingsDefaults,
 		constructor : function(){
 			Backbone.DeepModel.apply(this, arguments);
-			_.extend(this, BackboneLocalStorage.Model.prototype);
-			BackboneLocalStorage.Model.apply(this, arguments);
+			_.extend(this, Backbone.LocalStorageModel.prototype);
+			Backbone.LocalStorageModel.apply(this, arguments);
 		},
 		fetchingUsername : false,
 		fetchUsername : function(){
@@ -55,4 +55,4 @@
 
 	window.Settings = Settings;
 
-})(window.BackboneLocalStorage, window.Backbone, window._, window.PinterestAPI);
+})(window.Backbone, window._, window.PinterestAPI);

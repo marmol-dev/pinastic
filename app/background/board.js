@@ -1,6 +1,6 @@
 'use strict';
 
-(function(Backbone, BackboneLocalStorage, PinterestAPI, Settings) {
+(function(Backbone, PinterestAPI, Settings) {
 
 	/**
 	 * Interfaces validation
@@ -26,7 +26,7 @@
 		}
 	});
 
-	var Boards = BackboneLocalStorage.Collection.extend({
+	var Boards = Backbone.LocalStorageCollection.extend({
 		model: Board,
 		initialize : function(boards, options) {
 			if (options.settings instanceof Settings === false){
@@ -68,4 +68,4 @@
 
 	window.Boards = Boards;
 
-})(window.Backbone, window.BackboneLocalStorage, window.PinterestAPI, window.Settings);
+})(window.Backbone, window.PinterestAPI, window.Settings);
